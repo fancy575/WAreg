@@ -19,7 +19,7 @@ Currently, this package is not on CRAN. You can install it manually by sourcing 
 
 ```r
 # Example (assuming source is available locally or via GitHub)
-# devtools::install_github("yourname/WAreg")
+# devtools::install_github("fancy575/WAreg")
 ```
 
 ---
