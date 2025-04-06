@@ -39,6 +39,7 @@ fit <- WA_fit(
   cluster = "Cluster",         # Optional
   wr = c(1, 1),                # Weights for recurrent events
   wd = 1,                      # Weight for terminal event
+  link = "log"                 # log link for loss rate
   cens_mod = Surv(time, delta) ~ Z2,
   sp_knots = c(5, 10, 15, 20), # Internal spline knots
   degree = 1,                  # Degree of splines
