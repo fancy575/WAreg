@@ -1,0 +1,102 @@
+
+---
+title: "WAreg: A Regression Framework for Weighted Composite Endpoints"
+author: "Xi Fang"
+output:
+  rmarkdown::html_vignette:
+    toc: true
+vignette: >
+  %\VignetteIndexEntry{WAreg Tutorial}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+```
+
+# Introduction
+
+Composite endpoints are frequently used in clinical trials to enhance event incidence and improve statistical power.The **WAreg** package provides a regression framework for weighted composite endpoints using "while-alive" cumulative frequency measures. This approach incorporates time-varying effects using splines and is applicable to both conventional and cluster-randomized trials. In this vignette we demonstrate how to:
+
+- Load an example dataset.
+- Fit a WA regression model.
+- Summarize the fitted model.
+- Visualize the estimated time-varying effects.
+- (Optionally) Perform cross-validation to select model complexity.
+
+# Loading the Example Data
+
+The package includes an example dataset, `ex_dt`, stored in the `data/` folder. Load it using:
+
+```{r load-data}
+data(ex_dt)
+head(ex_dt)
+```
+
+The dataset contains columns such as `Cluster`, `Subject`, `time`, `type`, `delta`, `Z1`, and `Z2`.
+
+# Fitting the WA Regression Model
+
+The main function for fitting the model is `WA_reg()`, which integrates functions defined in `util_fun.R`, `WA_fit.R`, and `WA_fun.R`. For example, suppose we have the following model specifications:
+
+```r
+model <- Surv(time, type) ~ Z1 + Z2
+cens_mod <- Surv(time, delta) ~ Z2
+```
+
+Other parameters include:
+  
+- `wr`: Weight vector for recurrent events.
+- `wd`: Weight for the terminal event.
+- `sp_knots`: Spline knot locations, e.g., `c(5,10,15,20,25,30,35,40)`.
+- `degree`: Spline polynomial degree.
+- `id`: Subject ID column name (e.g., `"Subject"`).
+- `cluster`: Cluster column name (e.g., `"Cluster"`).
+- `ts`: A vector of time points for evaluation (e.g., `seq(0.001,40,length.out = 1000)`).
+
+Fit the model as follows:
+
+```{r fit-model}
+# Set parameters
+wr <- c(1, 1)
+wd <- 1
+sp_knots <- c(5, 10, 15, 20, 25, 30, 35, 40)
+degree <- 1
+id <- "Subject"
+cluster <- "Cluster"
+ts <- seq(0.001, 40, length.out = 1000)
+
+# Fit the WA regression model. WA_reg() is defined in the package.
+fit_obj <- WA_reg(model = model, data = ex_dt, cluster = cluster, id = id,
+                  wr = wr, wd = wd, cens_mod = cens_mod,
+                  sp_knots = sp_knots, degree = degree,
+                  cv = FALSE, K = 10, tr = c(5,35),
+                  nk = 2:6, ts = ts)
+```
+
+# Summarizing the Model
+
+```{r summary-model}
+summary(fit_obj)
+```
+
+# Plotting the Time-Varying Effects
+
+```{r plot-results}
+plot_results <- plot.WA_obj(fit_obj, ts = seq(0, 40, by = 1), alpha = 0.05)
+```
+
+# Cross-Validation (Optional)
+
+```{r cross-validation, eval=FALSE}
+cv_error <- cv_fit(model = model, data = ex_dt, cluster = cluster, id = id,
+                   wr = wr, wd = wd, cens_mod = cens_mod,
+                   degree = degree, time_range = sp_knots,
+                   L = ex_dt$N_R, K = 10, t_span = ts)
+cat("Cross-validation error:", cv_error)
+```
+
+# Conclusion
+
+This tutorial demonstrated the full workflow of the **WAreg** package: from loading example data, fitting a weighted composite endpoint regression model with time-varying effects using splines, to summarizing and visualizing the results. For more details on the methodology and further examples, please refer to the package documentation.

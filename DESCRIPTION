@@ -1,0 +1,21 @@
+Package: WAreg
+Type: Package
+Title: Regression Framework for While-Alive Composite Endpoints with
+        Time-Varying Effects
+Version: 0.1.0
+Author: Xi Fang, Hajime Uno, Fan Li
+Maintainer: The package maintainer <x.fang@yale.edu>
+Description: 
+    WAreg implements a novel regression framework for modeling "while-alive" cumulative frequency 
+    measures in clinical trials with composite endpoints. Composite endpoints combine two or more 
+    distinct outcomes to enhance event incidence and improve statistical power. WAreg incorporate weighted composite endpoints and using spline-based methods to capture 
+    time-varying effects. This flexible framework is applicable to both conventional randomized 
+    trials and cluster-randomized trials. The package provides asymptotic variance, and visualization tools for practical implementation.
+Imports: dplyr, survival, nleqslv, ggplot2
+License: GPL-3
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.3.1
+Depends: R (>= 2.10)
+NeedsCompilation: no
+Packaged: 2025-04-06 00:05:48 UTC; xf97
