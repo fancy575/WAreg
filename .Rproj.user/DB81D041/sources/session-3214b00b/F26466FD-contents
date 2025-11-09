@@ -1,0 +1,68 @@
+# fit (IID fallback if cluster=NULL)
+source("all_fun.R")
+
+
+
+# Fit once
+fit <- WA_fit(
+  formula  = Surv(time, status) ~ intv+ demo_sex_male+numchron,
+  data     = str_dt,         # long format
+  id       = "screenid",
+  cluster  = "practiceid",         # NULL => IID
+  knots    = seq(0, 3.5, length.out = 6),      # basis shape
+  tau_grid = seq(0, 3.5, length.out = 6),    # τ grid (independent)
+  basis    = "bz", degree = 1, link = "log",
+  w_recur  = c(1), w_term = 2,
+  ipcw     = "cox", ipcw_formula = ~demo_sex_male+numchron
+)
+
+summary(fit)
+
+tmin <- 0
+tmax <- max(str_dt$time, na.rm = TRUE)
+tau_grid_cv <- seq(tmin, tmax - 1e-6, length.out = 150)
+
+cv_tab <- WA_cv(
+  formula      = Surv(time, status) ~ intv + demo_sex_male + numchron,
+  data         = str_dt,
+  id           = "screenid",
+  cluster      = "practiceid",
+  basis_set    = "bz",
+  degree_vec   = c(1,2,3,4),
+  n_int_vec    = c(0,2,3,4,5),          # 0 covers the “only boundaries” case
+  knot_scheme  = "equidist",        # or "quantile"
+  link_set     = c("log"),
+  time_range   = c(tmin, tmax),
+  tau_grid     = seq(0, 3.5, length.out = 6),
+  w_recur      = c(1),
+  w_term       = 2,
+  ipcw         = "cox",
+  ipcw_formula = ~  demo_sex_male + numchron,
+  K            = 5,
+  seed         = 2025
+)
+
+cv_tab[order(cv_tab$PE), ][1:10, ]  # top configs
+best <- cv_tab[which.min(cv_tab$PE), ]
+best
+
+
+# choose a couple of covariate profiles from your data
+newdata_ex <- str_dt |>
+  dplyr::select(intv, demo_sex_male, numchron) |>
+  dplyr::distinct() |>
+  dplyr::slice(1:2)
+
+t_seq <- seq(0, 3.5, by = 0.05)
+
+pred <- predict.WA(fit, newdata = newdata_ex, t_seq = t_seq, level = 0.95)
+head(pred)
+
+plot.WA(fit, newdata = str_dt, t_seq = seq(0, max(fit$tau_grid), length.out = 200),
+        id = 1, mode = "wa",smooth = T)
+
+plot.WA(fit, newdata = str_dt, t_seq = seq(0, max(fit$tau_grid), length.out = 200),
+        id = 1,mode = "cov", covariate = "numchron",ylab_cov = "Effect of numchron on linear predictor",
+        smooth = T)
+
+

@@ -1,0 +1,64 @@
+#' Synthetic STRIDE-like longitudinal dataset
+#'
+#' @description
+#' `str_dt` is a fully **example** long-format dataset that mimics the
+#' structure of the original STRIDE-style recurrent/terminal event data used
+#' in examples for While-Alive regression. All values (IDs, times, statuses,
+#' clusters, covariates) are simulated.
+#' The dataset keeps broad characteristics such as the per-subject number
+#' of rows, distributions of inter-event time gaps, the mix of recurrent vs.
+#' terminal events, and marginal covariate distributions.
+#'
+#' @format A data frame in long format with the following columns:
+#' \describe{
+#'   \item{screenid}{Subject identifier (character). Synthetic IDs like `"S0000123"`.}
+#'   \item{practiceid}{Cluster identifier (character or factor). Synthetic.}
+#'   \item{time}{Observed time in years (numeric), non-decreasing within subject.}
+#'   \item{status}{Event code (integer or numeric):
+#'     \code{0} = censoring/no event at that time,
+#'     \code{s_max} = terminal event at the last row per subject,
+#'     other positive integers (if present) = recurrent event types.}
+#'   \item{intv}{Example treatment indicator (numeric or integer; synthetic).}
+#'   \item{demo_sex_male}{Example sex indicator (0/1; synthetic).}
+#'   \item{numchron}{Example number of chronic conditions (integer; synthetic).}
+#'   \item{...}{Additional baseline covariates if present in your original data
+#'     at the time of synthesis—names and types preserved but values faked.}
+#' }
+#'
+#' @details
+#' The data were produced by the helper function \code{synth_long_like()},
+#' which samples per-subject row counts, inter-event gaps, and covariate
+#' distributions from the original dataset’s **marginals** and then fabricates
+#' new subject/cluster identifiers and event trajectories. The generation is
+#' designed for **code examples, package vignettes, and testing**, not for
+#' scientific analysis.
+#'
+#' @section Ethics & Privacy:
+#' The dataset is synthetic and intended solely for demonstration/testing; it
+#' contains no real participant information and should not be used to infer any
+#' real-world characteristics.
+#'
+#' @source Synthetic; created with \code{data-raw/stride_fake.R}.
+#'
+#' @examples
+#' data(stride_fake)
+#' head(stride_fake)
+#'
+#' # A tiny example fit (not run on CRAN):
+#' \dontrun{
+#' fit <- WA_fit(
+#'   formula  = survival::Surv(time, status) ~ intv + demo_sex_male + numchron,
+#'   data     = stride_fake,
+#'   id       = "screenid",
+#'   cluster  = "practiceid",
+#'   knots    = seq(0, 3.5, length.out = 6),
+#'   tau_grid = seq(0, 3.5, length.out = 6),
+#'   basis    = "bz", degree = 1, link = "log",
+#'   w_recur  = c(1), w_term = 2,
+#'   ipcw     = "cox", ipcw_formula = ~ demo_sex_male + numchron
+#' )
+#' summary(fit)
+#' }
+#'
+#' @keywords datasets
+"str_dt"

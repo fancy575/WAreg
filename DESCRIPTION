@@ -1,0 +1,39 @@
+Package: WAreg
+Type: Package
+Title: While-Alive Regression for Composite Endpoints with CRT-Robust Inference
+Version: 0.1.0
+Authors@R: 
+    c(
+      person("Xi", "Fang", role = c("aut", "cre"), email = "x.fang@yale.edu"),
+      person("Hajime", "Uno", role = "aut"),
+      person("Fan", "Li", role = "aut")
+    )
+Description: Implements while-alive regression for composite endpoints with
+    recurrent and terminal events. Supports flexible time bases (B-spline,
+    natural spline, M-spline, piecewise polynomial, interval-local, etc.),
+    cluster-robust inference for cluster randomized trials, prediction, plotting,
+    and K-fold cross-validation.
+License: GPL-3
+Encoding: UTF-8
+Depends: R (>= 4.1)
+Imports: 
+    dplyr,
+    tidyr,
+    tibble,
+    ggplot2,
+    survival,
+    nleqslv,
+    splines,
+    MASS,
+    magrittr
+Suggests: 
+    splines2,
+    testthat (>= 3.0.0),
+    knitr,
+    rmarkdown
+Config/testthat/edition: 3
+URL: https://example.com/WAreg
+BugReports: https://example.com/WAreg/issues
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.3
+LazyData: true
